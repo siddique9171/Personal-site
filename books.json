@@ -52,5 +52,11 @@
     "cover": "covers/deep-learning-test.png",
     "pdf": "pdfs/deep-learning-test.pdf",
     "hue": 104
+  },
+  {
+    "title": "Test 2",
+    "cover": "covers/test-2.png",
+    "pdf": "pdfs/test-2.pdf",
+    "hue": 314
   }
 ]
