@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Books — Library Shelf</title>
+<style>
+  :root {
+    --wall: #4b4245;
+    --wall-dark: #352e31;
+    --wood-hi: #c98f4e;
+    --wood: #a06a33;
+    --wood-dark: #6f4517;
+    --wood-edge: #5a3712;
+    --ease: cubic-bezier(0.34, 1.4, 0.4, 1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: #f0e9e0;
+    background:
+      radial-gradient(1200px 700px at 50% 0%, rgba(255,255,255,.07), transparent 60%),
+      radial-gradient(1400px 900px at 50% 110%, rgba(0,0,0,.5), transparent 60%),
+      linear-gradient(180deg, var(--wall), var(--wall-dark));
+    background-attachment: fixed;
+  }
+  /* faint brick pattern on the wall */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: .16;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 46px, rgba(255,255,255,.16) 46px 48px),
+      repeating-linear-gradient(90deg, transparent 0 110px, rgba(255,255,255,.10) 110px 112px);
+  }
+
+  header {
+    text-align: center;
+    padding: 52px 20px 8px;
+    position: relative;
+  }
+  header h1 {
+    margin: 0 0 12px;
+    font-size: clamp(3rem, 7vw, 4.8rem);
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-shadow: 0 2px 10px rgba(0,0,0,.5);
+  }
+  header p {
+    margin: 0;
+    font-size: clamp(1.3rem, 2.4vw, 1.7rem);
+    color: rgba(240, 233, 224, .75);
+  }
+
+  .case {
+    max-width: 1120px;
+    margin: 44px auto 100px;
+    padding: 0 22px;
+    position: relative;
+  }
+
+  /* ---------------- one shelf unit ---------------- */
+  .shelf-unit { margin-bottom: 40px; }
+
+  .shelf-books {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: end;
+    justify-items: center;
+    padding: 0 40px;
+    min-height: 350px;
+  }
+
+  /* the wooden plank */
+  .plank {
+    position: relative;
+    height: 30px;
+    border-radius: 3px;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,.10) 0 3px, transparent 3px 34px),
+      linear-gradient(180deg, var(--wood-hi) 0%, var(--wood) 45%, var(--wood-dark) 100%);
+    box-shadow:
+      0 -1px 0 rgba(255, 235, 200, .45),
+      0 14px 22px -6px rgba(0, 0, 0, .65);
+  }
+  /* front lip of the plank */
+  .plank::after {
+    content: "";
+    position: absolute;
+    left: 6px; right: 6px; top: 100%;
+    height: 12px;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(180deg, var(--wood-edge), #3d240b);
+  }
+  /* shelf bracket shadows on the wall */
+  .plank::before {
+    content: "";
+    position: absolute;
+    left: 20px; right: 20px; top: 30px;
+    height: 26px;
+    background: radial-gradient(60% 100% at 50% 0%, rgba(0,0,0,.35), transparent 75%);
+    pointer-events: none;
+  }
+
+  /* ---------------- the book ---------------- */
+  .book {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    width: min(225px, 26vw);
+    aspect-ratio: 150 / 212;
+    position: relative;
+    margin-bottom: 2px;
+    transform-origin: bottom left;
+    transition: transform .45s var(--ease), filter .45s var(--ease);
+    filter: drop-shadow(6px 10px 10px rgba(0,0,0,.45));
+  }
+  .book:hover, .book:focus-visible {
+    transform: rotate(6deg) translateY(-8px);
+    filter: drop-shadow(12px 16px 16px rgba(0,0,0,.5));
+    z-index: 2;
+  }
+  .book:focus-visible { outline: 3px solid #ffcf7d; outline-offset: 4px; border-radius: 4px; }
+  .book:active { transform: rotate(6deg) translateY(-4px) scale(.98); }
+
+  .book .face {
+    position: absolute; inset: 0;
+    border-radius: 2px 6px 6px 2px;
+    overflow: hidden;
+    background: #223;
+  }
+  .book .face img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* generated cover when no image is provided */
+  .gen-cover {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 16px 14px;
+    text-align: left;
+  }
+  .gen-cover .gc-title {
+    font-weight: 700;
+    font-size: clamp(.8rem, 1.6vw, 1.02rem);
+    line-height: 1.25;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.4);
+  }
+  .gen-cover .gc-author {
+    font-size: .62rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.85);
+  }
+  /* spine highlight + gloss over any cover */
+  .book .face::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,.30) 0%, rgba(255,255,255,.22) 3.5%, rgba(0,0,0,.12) 7%, transparent 12%),
+      linear-gradient(120deg, rgba(255,255,255,.14) 0%, transparent 30%);
+    pointer-events: none;
+  }
+  /* page block on the right edge */
+  .book::after {
+    content: "";
+    position: absolute;
+    top: 2px; bottom: 2px; right: -4px;
+    width: 5px;
+    border-radius: 0 2px 2px 0;
+    background: repeating-linear-gradient(180deg, #f4efe4 0 2px, #d9d2c2 2px 3px);
+  }
+
+  .empty-slot { width: min(225px, 26vw); }
+
+  /* toast for missing pdf */
+  .toast {
+    position: fixed;
+    left: 50%; bottom: 34px;
+    transform: translate(-50%, 20px);
+    background: #1d1719;
+    color: #f0e9e0;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: .92rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+    z-index: 20;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .book, .toast { transition: none; }
+  }
+  @media (max-width: 640px) {
+    .shelf-books { padding: 0 10px; min-height: 220px; }
+    .book, .empty-slot { width: min(140px, 28vw); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Free Books</h1>
+  <p>by Dr. Muhammad Siddique &middot; click a book to open its PDF</p>
+</header>
+
+<div class="case" id="case"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ======================================================================
+  // YOUR BOOKS. Add or remove entries — shelves are created automatically,
+  // three books per shelf.
+  //   title : shown on the generated cover and in the tooltip
+  //   cover : path/URL to the cover image (e.g. "covers/ml.jpg").
+  //           Leave "" to use an auto-generated cover.
+  //   pdf   : path/URL to the PDF that opens on click (e.g. "pdfs/ml.pdf")
+  //   hue   : color of the auto-generated cover (0–360), used only if no cover image
+  // ======================================================================
+  const BOOKS = [
+    { title: "Machine Learning with Real-World Applications using Python", cover: "covers/machine-learning.png", pdf: "", hue: 210 },
+    { title: "Intelligent Systems and Computer Vision with Real-World Applications", cover: "covers/intelligent-systems.png", pdf: "", hue: 250 },
+    { title: "Natural Language Processing", cover: "covers/nlp.png", pdf: "", hue: 290 },
+    { title: "Learn Python", cover: "covers/learn-python.png", pdf: "", hue: 160 },
+    { title: "Python Lab Manual", cover: "covers/python-lab.png", pdf: "", hue: 30 },
+    { title: "OOPs Lab Manual using Python", cover: "covers/oops-lab.png", pdf: "", hue: 200 },
+    { title: "Lab Manual Data Structure", cover: "covers/data-structure-lab.png", pdf: "", hue: 0 },
+    { title: "Lab Manual for ICT", cover: "covers/ict-lab.png", pdf: "", hue: 130 }
+  ];
+  const AUTHOR = "Dr. Muhammad Siddique";
+  const PER_SHELF = 3;
+  // ====================== end of book content ==========================
+
+  const caseEl = document.getElementById("case");
+  const toast = document.getElementById("toast");
+  let toastTimer;
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+  }
+
+  function makeBook(book) {
+    const btn = document.createElement("button");
+    btn.className = "book";
+    btn.title = book.title;
+    btn.setAttribute("aria-label", "Open PDF: " + book.title);
+
+    const face = document.createElement("div");
+    face.className = "face";
+    if (book.cover) {
+      const img = document.createElement("img");
+      img.src = book.cover;
+      img.alt = "";
+      // fall back to a generated cover if the image path is wrong
+      img.onerror = () => { face.removeChild(img); face.appendChild(genCover(book)); };
+      face.appendChild(img);
+    } else {
+      face.appendChild(genCover(book));
+    }
+    btn.appendChild(face);
+
+    btn.addEventListener("click", () => {
+      if (book.pdf) {
+        window.open(book.pdf, "_blank");
+      } else {
+        showToast('No PDF linked yet — set the "pdf" path for "' + book.title + '" in the BOOKS list.');
+      }
+    });
+    return btn;
+  }
+
+  function genCover(book) {
+    const h = book.hue ?? 210;
+    const div = document.createElement("div");
+    div.className = "gen-cover";
+    div.style.background =
+      "radial-gradient(120% 90% at 85% 10%, hsl(" + h + " 70% 62% / .9), transparent 55%)," +
+      "linear-gradient(160deg, hsl(" + h + " 55% 38%), hsl(" + (h + 30) + " 60% 20%))";
+    const t = document.createElement("span");
+    t.className = "gc-title";
+    t.textContent = book.title;
+    const a = document.createElement("span");
+    a.className = "gc-author";
+    a.textContent = AUTHOR;
+    div.append(t, a);
+    return div;
+  }
+
+  // Build shelves: one shelf per group of PER_SHELF books, gaps stay empty.
+  for (let s = 0; s < Math.ceil(BOOKS.length / PER_SHELF); s++) {
+    const unit = document.createElement("section");
+    unit.className = "shelf-unit";
+
+    const rowEl = document.createElement("div");
+    rowEl.className = "shelf-books";
+    for (let k = 0; k < PER_SHELF; k++) {
+      const book = BOOKS[s * PER_SHELF + k];
+      if (book) {
+        rowEl.appendChild(makeBook(book));
+      } else {
+        const gap = document.createElement("div");
+        gap.className = "empty-slot";
+        gap.setAttribute("aria-hidden", "true");
+        rowEl.appendChild(gap);
+      }
+    }
+    const plank = document.createElement("div");
+    plank.className = "plank";
+
+    unit.append(rowEl, plank);
+    caseEl.appendChild(unit);
+  }
+</script>
+
+</body>
+</html>
