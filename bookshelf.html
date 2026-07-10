@@ -181,7 +181,7 @@
 
   .empty-slot { width: min(225px, 26vw); }
 
-  /* toast for missing pdf */
+  /* toast for messages */
   .toast {
     position: fixed;
     left: 50%; bottom: 34px;
@@ -191,20 +191,116 @@
     border: 1px solid rgba(255,255,255,.15);
     border-radius: 10px;
     padding: 12px 20px;
-    font-size: .92rem;
+    font-size: .95rem;
+    max-width: min(90vw, 560px);
     opacity: 0;
     pointer-events: none;
     transition: opacity .3s ease, transform .3s ease;
-    z-index: 20;
+    z-index: 60;
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+  /* ---------------- upload button + modal ---------------- */
+  .upload-fab {
+    position: fixed;
+    right: 26px; bottom: 26px;
+    z-index: 30;
+    display: inline-flex; align-items: center; gap: 10px;
+    font: inherit; font-weight: 600; font-size: 1rem;
+    color: #2a1f14;
+    background: linear-gradient(180deg, #e9b96b, #c98f4e);
+    border: 1px solid rgba(0,0,0,.25);
+    border-radius: 999px;
+    padding: 14px 24px;
+    cursor: pointer;
+    box-shadow: 0 12px 26px -8px rgba(0,0,0,.6);
+    transition: transform .3s var(--ease);
+  }
+  .upload-fab:hover { transform: translateY(-3px); }
+  .upload-fab:active { transform: scale(.97); }
+
+  .modal-wrap {
+    position: fixed; inset: 0;
+    z-index: 50;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    background: rgba(20, 15, 17, .7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .modal-wrap.open { display: flex; }
+  .modal {
+    width: min(480px, 100%);
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #2b2326;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 30px 70px -20px rgba(0,0,0,.8);
+  }
+  .modal h2 { margin: 0 0 4px; font-size: 1.5rem; }
+  .modal .sub { margin: 0 0 22px; font-size: .9rem; color: rgba(240,233,224,.6); }
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: .82rem; font-weight: 600;
+    letter-spacing: .04em;
+    margin-bottom: 6px;
+    color: rgba(240,233,224,.8);
+  }
+  .field input[type="text"], .field input[type="password"] {
+    width: 100%;
+    font: inherit; font-size: .95rem;
+    color: #f0e9e0;
+    background: #201a1c;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 10px;
+    padding: 11px 14px;
+  }
+  .field input:focus { outline: 2px solid #c98f4e; border-color: transparent; }
+  .field input[type="file"] {
+    width: 100%;
+    font-size: .88rem;
+    color: rgba(240,233,224,.8);
+  }
+  .field .hint { font-size: .76rem; color: rgba(240,233,224,.45); margin-top: 5px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+  .m-btn {
+    flex: 1;
+    font: inherit; font-weight: 600; font-size: .95rem;
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,.15);
+    background: transparent; color: #f0e9e0;
+    transition: background .2s ease;
+  }
+  .m-btn:hover { background: rgba(255,255,255,.06); }
+  .m-btn.primary {
+    background: linear-gradient(180deg, #e9b96b, #c98f4e);
+    color: #2a1f14;
+    border-color: rgba(0,0,0,.25);
+  }
+  .m-btn.primary:disabled { opacity: .55; cursor: wait; }
+  .m-status { margin-top: 14px; font-size: .86rem; min-height: 1.3em; color: #e9b96b; }
+  .m-status.err { color: #ff9d8a; }
+  .token-row { display: flex; align-items: center; justify-content: space-between; }
+  .token-link {
+    background: none; border: 0; padding: 0;
+    font: inherit; font-size: .76rem;
+    color: #c98f4e; cursor: pointer;
+    text-decoration: underline;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .book, .toast { transition: none; }
+    .book, .toast, .upload-fab { transition: none; }
   }
   @media (max-width: 640px) {
     .shelf-books { padding: 0 10px; min-height: 220px; }
     .book, .empty-slot { width: min(140px, 28vw); }
+    .upload-fab { right: 14px; bottom: 14px; padding: 12px 18px; }
   }
 </style>
 </head>
@@ -217,19 +313,57 @@
 
 <div class="case" id="case"></div>
 
+<button class="upload-fab" id="upload-fab">&#43; Upload book</button>
+
+<div class="modal-wrap" id="modal-wrap" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <div class="modal">
+    <h2 id="m-title">Upload a book</h2>
+    <p class="sub">The PDF and cover are saved to GitHub and the shelf updates automatically.</p>
+
+    <div class="field">
+      <label for="f-title">Book title</label>
+      <input type="text" id="f-title" placeholder="e.g. Deep Learning Fundamentals">
+    </div>
+    <div class="field">
+      <label for="f-pdf">PDF file</label>
+      <input type="file" id="f-pdf" accept=".pdf,application/pdf">
+    </div>
+    <div class="field">
+      <label for="f-cover">Cover image (optional)</label>
+      <input type="file" id="f-cover" accept="image/*">
+      <div class="hint">If you skip this, a colored cover with the title is generated.</div>
+    </div>
+    <div class="field" id="token-field">
+      <div class="token-row">
+        <label for="f-token">GitHub token</label>
+        <button class="token-link" id="token-clear" type="button" hidden>use a different token</button>
+      </div>
+      <input type="password" id="f-token" placeholder="github_pat_...">
+      <div class="hint">Needed once — it is saved only in this browser. Create it at github.com &rarr; Settings &rarr; Developer settings &rarr; Fine-grained tokens, with Read &amp; Write access to "Contents" on the Personal-site repository.</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="m-btn" id="m-cancel" type="button">Cancel</button>
+      <button class="m-btn primary" id="m-upload" type="button">Upload to GitHub</button>
+    </div>
+    <div class="m-status" id="m-status"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
   // ======================================================================
-  // YOUR BOOKS. Add or remove entries — shelves are created automatically,
-  // three books per shelf.
-  //   title : shown on the generated cover and in the tooltip
-  //   cover : path/URL to the cover image (e.g. "covers/ml.jpg").
-  //           Leave "" to use an auto-generated cover.
-  //   pdf   : path/URL to the PDF that opens on click (e.g. "pdfs/ml.pdf")
-  //   hue   : color of the auto-generated cover (0–360), used only if no cover image
+  // GitHub settings — where uploads are pushed and books are read from.
   // ======================================================================
-  const BOOKS = [
+  const OWNER  = "siddique9171";
+  const REPO   = "Personal-site";
+  const BRANCH = "main";
+  const AUTHOR = "Dr. Muhammad Siddique";
+  const PER_SHELF = 3;
+
+  // Used only if books.json cannot be loaded (e.g. no internet, first run).
+  const FALLBACK_BOOKS = [
     { title: "Machine Learning with Real-World Applications using Python", cover: "covers/machine-learning.png", pdf: "", hue: 210 },
     { title: "Intelligent Systems and Computer Vision with Real-World Applications", cover: "covers/intelligent-systems.png", pdf: "", hue: 250 },
     { title: "Natural Language Processing", cover: "covers/nlp.png", pdf: "", hue: 290 },
@@ -239,21 +373,21 @@
     { title: "Lab Manual Data Structure", cover: "covers/data-structure-lab.png", pdf: "", hue: 0 },
     { title: "Lab Manual for ICT", cover: "covers/ict-lab.png", pdf: "", hue: 130 }
   ];
-  const AUTHOR = "Dr. Muhammad Siddique";
-  const PER_SHELF = 3;
-  // ====================== end of book content ==========================
+  // ======================================================================
 
   const caseEl = document.getElementById("case");
   const toast = document.getElementById("toast");
   let toastTimer;
+  let books = [];
 
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
   }
 
+  /* ---------------- shelf rendering ---------------- */
   function makeBook(book) {
     const btn = document.createElement("button");
     btn.className = "book";
@@ -266,8 +400,7 @@
       const img = document.createElement("img");
       img.src = book.cover;
       img.alt = "";
-      // fall back to a generated cover if the image path is wrong
-      img.onerror = () => { face.removeChild(img); face.appendChild(genCover(book)); };
+      img.onerror = () => { if (img.parentNode) { face.removeChild(img); face.appendChild(genCover(book)); } };
       face.appendChild(img);
     } else {
       face.appendChild(genCover(book));
@@ -278,7 +411,7 @@
       if (book.pdf) {
         window.open(book.pdf, "_blank");
       } else {
-        showToast('No PDF linked yet — set the "pdf" path for "' + book.title + '" in the BOOKS list.');
+        showToast('No PDF linked yet for "' + book.title + '".');
       }
     });
     return btn;
@@ -301,30 +434,180 @@
     return div;
   }
 
-  // Build shelves: one shelf per group of PER_SHELF books, gaps stay empty.
-  for (let s = 0; s < Math.ceil(BOOKS.length / PER_SHELF); s++) {
-    const unit = document.createElement("section");
-    unit.className = "shelf-unit";
-
-    const rowEl = document.createElement("div");
-    rowEl.className = "shelf-books";
-    for (let k = 0; k < PER_SHELF; k++) {
-      const book = BOOKS[s * PER_SHELF + k];
-      if (book) {
-        rowEl.appendChild(makeBook(book));
-      } else {
-        const gap = document.createElement("div");
-        gap.className = "empty-slot";
-        gap.setAttribute("aria-hidden", "true");
-        rowEl.appendChild(gap);
+  function render() {
+    caseEl.innerHTML = "";
+    for (let s = 0; s < Math.ceil(books.length / PER_SHELF); s++) {
+      const unit = document.createElement("section");
+      unit.className = "shelf-unit";
+      const rowEl = document.createElement("div");
+      rowEl.className = "shelf-books";
+      for (let k = 0; k < PER_SHELF; k++) {
+        const book = books[s * PER_SHELF + k];
+        if (book) {
+          rowEl.appendChild(makeBook(book));
+        } else {
+          const gap = document.createElement("div");
+          gap.className = "empty-slot";
+          gap.setAttribute("aria-hidden", "true");
+          rowEl.appendChild(gap);
+        }
       }
+      const plank = document.createElement("div");
+      plank.className = "plank";
+      unit.append(rowEl, plank);
+      caseEl.appendChild(unit);
     }
-    const plank = document.createElement("div");
-    plank.className = "plank";
-
-    unit.append(rowEl, plank);
-    caseEl.appendChild(unit);
   }
+
+  async function loadBooks() {
+    // 1) normal case: books.json sits next to this page (GitHub Pages)
+    try {
+      const r = await fetch("books.json?t=" + Date.now());
+      if (r.ok) return await r.json();
+    } catch (e) {}
+    // 2) opened from disk: read it straight from GitHub
+    try {
+      const r = await fetch("https://raw.githubusercontent.com/" + OWNER + "/" + REPO + "/" + BRANCH + "/books.json?t=" + Date.now());
+      if (r.ok) return await r.json();
+    } catch (e) {}
+    return FALLBACK_BOOKS;
+  }
+
+  loadBooks().then(b => { books = b; render(); });
+
+  /* ---------------- GitHub upload ---------------- */
+  const modalWrap = document.getElementById("modal-wrap");
+  const statusEl = document.getElementById("m-status");
+  const tokenInput = document.getElementById("f-token");
+  const tokenClear = document.getElementById("token-clear");
+  const uploadBtn = document.getElementById("m-upload");
+
+  function syncTokenField() {
+    const saved = localStorage.getItem("ghToken");
+    if (saved) {
+      tokenInput.value = "";
+      tokenInput.placeholder = "token saved ✓";
+      tokenClear.hidden = false;
+    } else {
+      tokenInput.placeholder = "github_pat_...";
+      tokenClear.hidden = true;
+    }
+  }
+  tokenClear.addEventListener("click", () => {
+    localStorage.removeItem("ghToken");
+    syncTokenField();
+    tokenInput.focus();
+  });
+
+  document.getElementById("upload-fab").addEventListener("click", () => {
+    syncTokenField();
+    statusEl.textContent = "";
+    statusEl.classList.remove("err");
+    modalWrap.classList.add("open");
+    document.getElementById("f-title").focus();
+  });
+  document.getElementById("m-cancel").addEventListener("click", () => modalWrap.classList.remove("open"));
+  modalWrap.addEventListener("click", e => { if (e.target === modalWrap) modalWrap.classList.remove("open"); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") modalWrap.classList.remove("open"); });
+
+  function slugify(s) {
+    return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "book";
+  }
+  function fileToBase64(file) {
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(String(fr.result).split(",")[1]);
+      fr.onerror = rej;
+      fr.readAsDataURL(file);
+    });
+  }
+  function jsonToBase64(obj) {
+    const s = JSON.stringify(obj, null, 2);
+    return btoa(unescape(encodeURIComponent(s)));
+  }
+
+  function gh(path, opts) {
+    return fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/contents/" + path, opts);
+  }
+  async function ghGetSha(path, token) {
+    const r = await gh(path + "?ref=" + BRANCH, {
+      headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" }
+    });
+    if (r.status === 404) return null;
+    if (!r.ok) throw new Error("GitHub read failed (" + r.status + ")");
+    return (await r.json()).sha;
+  }
+  async function ghPut(path, base64, message, token) {
+    const sha = await ghGetSha(path, token);
+    const body = { message: message, content: base64, branch: BRANCH };
+    if (sha) body.sha = sha;
+    const r = await gh(path, {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      const detail = await r.json().catch(() => ({}));
+      throw new Error("GitHub upload failed (" + r.status + "): " + (detail.message || "unknown error"));
+    }
+  }
+
+  uploadBtn.addEventListener("click", async () => {
+    const title = document.getElementById("f-title").value.trim();
+    const pdfFile = document.getElementById("f-pdf").files[0];
+    const coverFile = document.getElementById("f-cover").files[0];
+    let token = tokenInput.value.trim() || localStorage.getItem("ghToken");
+
+    statusEl.classList.remove("err");
+    if (!title) { statusEl.classList.add("err"); statusEl.textContent = "Please enter the book title."; return; }
+    if (!pdfFile) { statusEl.classList.add("err"); statusEl.textContent = "Please choose the PDF file."; return; }
+    if (!token) { statusEl.classList.add("err"); statusEl.textContent = "Please paste your GitHub token (see the note above)."; return; }
+    if (pdfFile.size > 45 * 1024 * 1024) {
+      statusEl.classList.add("err");
+      statusEl.textContent = "This PDF is over 45 MB — GitHub's upload limit. Compress it and try again.";
+      return;
+    }
+
+    const slug = slugify(title);
+    const pdfPath = "pdfs/" + slug + ".pdf";
+    let coverPath = "";
+
+    uploadBtn.disabled = true;
+    try {
+      statusEl.textContent = "Uploading PDF… (large files can take a minute)";
+      await ghPut(pdfPath, await fileToBase64(pdfFile), "Add book PDF: " + title, token);
+
+      if (coverFile) {
+        statusEl.textContent = "Uploading cover…";
+        const extMatch = coverFile.name.match(/\.(png|jpe?g|webp|gif)$/i);
+        const ext = extMatch ? extMatch[1].toLowerCase() : "png";
+        coverPath = "covers/" + slug + "." + ext;
+        await ghPut(coverPath, await fileToBase64(coverFile), "Add book cover: " + title, token);
+      }
+
+      statusEl.textContent = "Updating the shelf…";
+      const entry = { title: title, cover: coverPath, pdf: pdfPath, hue: Math.floor(Math.random() * 360) };
+      const newList = books.concat([entry]);
+      await ghPut("books.json", jsonToBase64(newList), "Add book to shelf: " + title, token);
+
+      localStorage.setItem("ghToken", token);
+      books = newList;
+      render();
+      modalWrap.classList.remove("open");
+      document.getElementById("f-title").value = "";
+      document.getElementById("f-pdf").value = "";
+      document.getElementById("f-cover").value = "";
+      showToast('"' + title + '" is on the shelf and pushed to GitHub. The live site updates in about a minute.');
+    } catch (err) {
+      statusEl.classList.add("err");
+      statusEl.textContent = String(err.message || err);
+      if (/401|403/.test(String(err.message))) {
+        statusEl.textContent += " — check that your token has Read & Write access to Contents on " + OWNER + "/" + REPO + ".";
+      }
+    } finally {
+      uploadBtn.disabled = false;
+    }
+  });
 </script>
 
 </body>
