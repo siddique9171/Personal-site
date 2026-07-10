@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/bookshelf.html", "destination": "/", "permanent": true }
+  ]
+}
