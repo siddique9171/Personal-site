@@ -161,12 +161,9 @@
       <div class="hint">If you skip this, a colored cover with the title is generated on the shelf.</div>
     </div>
     <div class="field">
-      <div class="token-row">
-        <label for="f-token">GitHub token</label>
-        <button class="token-link" id="token-clear" type="button" hidden>use a different token</button>
-      </div>
-      <input type="password" id="f-token" placeholder="github_pat_...">
-      <div class="hint">Needed once — saved only in this browser. Create at github.com &rarr; Settings &rarr; Developer settings &rarr; Fine-grained tokens, with Read &amp; Write access to "Contents" on the Personal-site repository.</div>
+      <label for="f-pass">Admin password</label>
+      <input type="password" id="f-pass" placeholder="your admin password">
+      <div class="hint">Checked against the ADMIN_PASSWORD environment variable on Vercel. The GitHub token itself stays on the server (GITHUB_TOKEN) and never appears here.</div>
     </div>
 
     <button class="btn" id="m-upload" type="button">Upload to GitHub</button>
@@ -190,32 +187,37 @@
 
   const upStatus = document.getElementById("up-status");
   const listStatus = document.getElementById("list-status");
-  const tokenInput = document.getElementById("f-token");
-  const tokenClear = document.getElementById("token-clear");
+  const passInput = document.getElementById("f-pass");
   const uploadBtn = document.getElementById("m-upload");
   const listEl = document.getElementById("book-list");
 
-  /* ---------------- token handling ---------------- */
-  function syncTokenField() {
-    const saved = localStorage.getItem("ghToken");
-    if (saved) {
-      tokenInput.value = "";
-      tokenInput.placeholder = "token saved ✓";
-      tokenClear.hidden = false;
-    } else {
-      tokenInput.placeholder = "github_pat_...";
-      tokenClear.hidden = true;
-    }
-  }
-  tokenClear.addEventListener("click", () => {
-    localStorage.removeItem("ghToken");
-    syncTokenField();
-    tokenInput.focus();
-  });
-  syncTokenField();
+  /* ---------------- auth: password -> token from Vercel env ---------------- */
+  localStorage.removeItem("ghToken"); // clean up the old browser-stored token
+  let cachedToken = null;
 
-  function getToken() {
-    return tokenInput.value.trim() || localStorage.getItem("ghToken") || "";
+  if (sessionStorage.getItem("adminPass")) {
+    passInput.placeholder = "password saved for this tab ✓";
+  }
+
+  async function fetchToken() {
+    if (cachedToken) return cachedToken;
+    const password = passInput.value.trim() || sessionStorage.getItem("adminPass") || "";
+    if (!password) throw new Error("Enter the admin password.");
+    const r = await fetch("/api/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: password })
+    });
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      sessionStorage.removeItem("adminPass");
+      throw new Error(data.error || ("Login failed (" + r.status + ")"));
+    }
+    sessionStorage.setItem("adminPass", password);
+    passInput.value = "";
+    passInput.placeholder = "password saved for this tab ✓";
+    cachedToken = data.token;
+    return cachedToken;
   }
 
   /* ---------------- GitHub API helpers ---------------- */
@@ -275,7 +277,7 @@
   }
   function authNote(err) {
     return /401|403/.test(String(err && err.message)) ?
-      " — check that your token has Read & Write access to Contents on " + OWNER + "/" + REPO + "." : "";
+      " — check that the GITHUB_TOKEN on Vercel has Read & Write access to Contents on " + OWNER + "/" + REPO + "." : "";
   }
 
   /* ---------------- book list ---------------- */
@@ -339,12 +341,10 @@
     const title = document.getElementById("f-title").value.trim();
     const pdfFile = document.getElementById("f-pdf").files[0];
     const coverFile = document.getElementById("f-cover").files[0];
-    const token = getToken();
 
     upStatus.classList.remove("err");
     if (!title) { upStatus.classList.add("err"); upStatus.textContent = "Please enter the book title."; return; }
     if (!pdfFile) { upStatus.classList.add("err"); upStatus.textContent = "Please choose the PDF file."; return; }
-    if (!token) { upStatus.classList.add("err"); upStatus.textContent = "Please paste your GitHub token (see the note above)."; return; }
     if (pdfFile.size > 45 * 1024 * 1024) {
       upStatus.classList.add("err");
       upStatus.textContent = "This PDF is over 45 MB — GitHub's upload limit. Compress it and try again.";
@@ -357,6 +357,9 @@
 
     uploadBtn.disabled = true;
     try {
+      upStatus.textContent = "Signing in…";
+      const token = await fetchToken();
+
       upStatus.textContent = "Uploading PDF… (large files can take a minute)";
       await ghPut(pdfPath, await fileToBase64(pdfFile), "Add book PDF: " + title, token);
 
@@ -373,10 +376,8 @@
       const newList = books.concat([entry]);
       await ghPut("books.json", jsonToBase64(newList), "Add book to shelf: " + title, token);
 
-      localStorage.setItem("ghToken", token);
       books = newList;
       renderList();
-      syncTokenField();
       document.getElementById("f-title").value = "";
       document.getElementById("f-pdf").value = "";
       document.getElementById("f-cover").value = "";
@@ -392,17 +393,14 @@
   /* ---------------- delete ---------------- */
   async function deleteBook(i, btn) {
     const book = books[i];
-    const token = getToken();
-    if (!token) {
-      listStatus.classList.add("err");
-      listStatus.textContent = "Paste your GitHub token in the upload form first.";
-      return;
-    }
     if (!confirm('Delete "' + book.title + '" from the shelf?\nThis also deletes its PDF and cover from GitHub.')) return;
 
     btn.disabled = true;
     listStatus.classList.remove("err");
     try {
+      listStatus.textContent = "Signing in…";
+      const token = await fetchToken();
+
       listStatus.textContent = "Removing from the shelf…";
       const newList = books.filter((_, idx) => idx !== i);
       await ghPut("books.json", jsonToBase64(newList), "Remove book from shelf: " + book.title, token);
@@ -416,10 +414,8 @@
         await ghDelete(book.cover, "Delete book cover: " + book.title, token);
       }
 
-      localStorage.setItem("ghToken", token);
       books = newList;
       renderList();
-      syncTokenField();
       listStatus.textContent = '"' + book.title + '" deleted. The live site updates in under a minute.';
     } catch (err) {
       listStatus.classList.add("err");
