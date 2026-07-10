@@ -1,5 +1,7 @@
 {
+  "cleanUrls": true,
   "redirects": [
-    { "source": "/bookshelf.html", "destination": "/", "permanent": true }
+    { "source": "/bookshelf.html", "destination": "/", "permanent": true },
+    { "source": "/bookshelf", "destination": "/", "permanent": true }
   ]
 }
