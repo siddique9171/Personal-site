@@ -6,10 +6,10 @@
     "hue": 250
   },
   {
-    "title": "Python Lab Manual",
-    "cover": "covers/python-lab.png",
+    "title": "Natural Language Processing",
+    "cover": "covers/nlp.png",
     "pdf": "",
-    "hue": 30
+    "hue": 290
   },
   {
     "title": "OOPs Lab Manual using Python",
