@@ -1,11 +1,5 @@
 [
   {
-    "title": "Learn Python",
-    "cover": "covers/learn-python.png",
-    "pdf": "",
-    "hue": 160
-  },
-  {
     "title": "Python Lab Manual",
     "cover": "covers/python-lab.png",
     "pdf": "",
