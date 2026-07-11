@@ -28,5 +28,11 @@
     "cover": "covers/object-oriented-programming.jpg",
     "pdf": "pdfs/object-oriented-programming.pdf",
     "hue": 15
+  },
+  {
+    "title": "Python Lab Manual",
+    "cover": "covers/python-lab-manual.png",
+    "pdf": "pdfs/python-lab-manual.pdf",
+    "hue": 27
   }
 ]
