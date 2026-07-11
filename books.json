@@ -22,5 +22,11 @@
     "cover": "covers/learn-python.jpeg",
     "pdf": "pdfs/learn-python.pdf",
     "hue": 50
+  },
+  {
+    "title": "Object Oriented Programming",
+    "cover": "covers/object-oriented-programming.jpg",
+    "pdf": "pdfs/object-oriented-programming.pdf",
+    "hue": 15
   }
 ]
