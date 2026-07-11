@@ -12,22 +12,16 @@
     "hue": 290
   },
   {
-    "title": "Learn Python",
-    "cover": "covers/learn-python.png",
+    "title": "Python Lab Manual",
+    "cover": "covers/python-lab.png",
     "pdf": "",
-    "hue": 160
+    "hue": 30
   },
   {
     "title": "OOPs Lab Manual using Python",
     "cover": "covers/oops-lab.png",
     "pdf": "",
     "hue": 200
-  },
-  {
-    "title": "Lab Manual Data Structure",
-    "cover": "covers/data-structure-lab.png",
-    "pdf": "",
-    "hue": 0
   },
   {
     "title": "Lab Manual for ICT",
