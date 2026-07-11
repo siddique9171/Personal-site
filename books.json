@@ -34,5 +34,11 @@
     "cover": "covers/python-lab-manual.png",
     "pdf": "pdfs/python-lab-manual.pdf",
     "hue": 27
+  },
+  {
+    "title": "Data Structure Lab Manual",
+    "cover": "covers/data-structure-lab-manual.png",
+    "pdf": "pdfs/data-structure-lab-manual.pdf",
+    "hue": 275
   }
 ]
