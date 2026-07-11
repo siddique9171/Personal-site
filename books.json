@@ -6,16 +6,22 @@
     "hue": 250
   },
   {
-    "title": "Natural Language Processing",
-    "cover": "covers/nlp.png",
+    "title": "Learn Python",
+    "cover": "covers/learn-python.png",
     "pdf": "",
-    "hue": 290
+    "hue": 160
   },
   {
     "title": "Python Lab Manual",
     "cover": "covers/python-lab.png",
     "pdf": "",
     "hue": 30
+  },
+  {
+    "title": "OOPs Lab Manual using Python",
+    "cover": "covers/oops-lab.png",
+    "pdf": "",
+    "hue": 200
   },
   {
     "title": "Lab Manual Data Structure",
@@ -28,11 +34,5 @@
     "cover": "covers/ict-lab.png",
     "pdf": "",
     "hue": 130
-  },
-  {
-    "title": "Deep Learning Test",
-    "cover": "covers/deep-learning-test.png",
-    "pdf": "pdfs/deep-learning-test.pdf",
-    "hue": 104
   }
 ]
