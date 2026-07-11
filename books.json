@@ -40,5 +40,11 @@
     "cover": "covers/data-structure-lab-manual.png",
     "pdf": "pdfs/data-structure-lab-manual.pdf",
     "hue": 185
+  },
+  {
+    "title": "Information and Communication Technology",
+    "cover": "covers/information-and-communication-technology.png",
+    "pdf": "pdfs/information-and-communication-technology.pdf",
+    "hue": 73
   }
 ]
