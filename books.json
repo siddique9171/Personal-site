@@ -1,11 +1,5 @@
 [
   {
-    "title": "Intelligent Systems and Computer Vision with Real-World Applications",
-    "cover": "covers/intelligent-systems.png",
-    "pdf": "",
-    "hue": 250
-  },
-  {
     "title": "Natural Language Processing",
     "cover": "covers/nlp.png",
     "pdf": "",
