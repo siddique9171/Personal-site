@@ -1,15 +1,27 @@
 [
   {
+    "title": "Machine Learning with Real-World Applications using Python",
+    "cover": "covers/machine-learning.png",
+    "pdf": "",
+    "hue": 210
+  },
+  {
     "title": "Intelligent Systems and Computer Vision with Real-World Applications",
     "cover": "covers/intelligent-systems.png",
     "pdf": "",
     "hue": 250
   },
   {
-    "title": "Natural Language Processing",
-    "cover": "covers/nlp.png",
+    "title": "Learn Python",
+    "cover": "covers/learn-python.png",
     "pdf": "",
-    "hue": 290
+    "hue": 160
+  },
+  {
+    "title": "Python Lab Manual",
+    "cover": "covers/python-lab.png",
+    "pdf": "",
+    "hue": 30
   },
   {
     "title": "OOPs Lab Manual using Python",
