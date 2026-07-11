@@ -1,11 +1,5 @@
 [
   {
-    "title": "Python Lab Manual",
-    "cover": "covers/python-lab.png",
-    "pdf": "",
-    "hue": 30
-  },
-  {
     "title": "OOPs Lab Manual using Python",
     "cover": "covers/oops-lab.png",
     "pdf": "",
