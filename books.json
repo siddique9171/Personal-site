@@ -6,10 +6,10 @@
     "hue": 250
   },
   {
-    "title": "Natural Language Processing",
-    "cover": "covers/nlp.png",
+    "title": "Learn Python",
+    "cover": "covers/learn-python.png",
     "pdf": "",
-    "hue": 290
+    "hue": 160
   },
   {
     "title": "Python Lab Manual",
