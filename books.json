@@ -4,5 +4,11 @@
     "cover": "covers/machine-learning-with-python.jpg",
     "pdf": "pdfs/machine-learning-with-python.pdf",
     "hue": 199
+  },
+  {
+    "title": "Natural Language Processing with Example Code",
+    "cover": "covers/natural-language-processing-with-example-code.jpg",
+    "pdf": "pdfs/natural-language-processing-with-example-code.pdf",
+    "hue": 223
   }
 ]
