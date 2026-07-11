@@ -16,5 +16,11 @@
     "cover": "covers/natural-language-processing.jpg",
     "pdf": "pdfs/natural-language-processing.pdf",
     "hue": 255
+  },
+  {
+    "title": "Learn Python",
+    "cover": "covers/learn-python.jpeg",
+    "pdf": "pdfs/learn-python.pdf",
+    "hue": 50
   }
 ]
