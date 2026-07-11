@@ -1,15 +1,15 @@
 [
   {
+    "title": "Intelligent Systems and Computer Vision with Real-World Applications",
+    "cover": "covers/intelligent-systems.png",
+    "pdf": "",
+    "hue": 250
+  },
+  {
     "title": "Natural Language Processing",
     "cover": "covers/nlp.png",
     "pdf": "",
     "hue": 290
-  },
-  {
-    "title": "Learn Python",
-    "cover": "covers/learn-python.png",
-    "pdf": "",
-    "hue": 160
   },
   {
     "title": "Python Lab Manual",
