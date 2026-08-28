@@ -58,5 +58,11 @@
     "cover": "covers/lab-manual-programming-for-ai.png",
     "pdf": "pdfs/lab-manual-programming-for-ai.pdf",
     "hue": 167
+  },
+  {
+    "title": "Lab Manual Information Security",
+    "cover": "covers/lab-manual-information-security.png",
+    "pdf": "pdfs/lab-manual-information-security.pdf",
+    "hue": 21
   }
 ]
