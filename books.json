@@ -70,5 +70,11 @@
     "cover": "covers/lab-manual-computer-organization-and-assembly-language.png",
     "pdf": "pdfs/lab-manual-computer-organization-and-assembly-language.pdf",
     "hue": 175
+  },
+  {
+    "title": "Python in Urdu",
+    "cover": "covers/python-in-urdu.png",
+    "pdf": "pdfs/python-in-urdu.pdf",
+    "hue": 182
   }
 ]
