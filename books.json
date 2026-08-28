@@ -64,5 +64,11 @@
     "cover": "covers/lab-manual-information-security.png",
     "pdf": "pdfs/lab-manual-information-security.pdf",
     "hue": 21
+  },
+  {
+    "title": "Lab Manual Computer Organization and Assembly Language",
+    "cover": "covers/lab-manual-computer-organization-and-assembly-language.png",
+    "pdf": "pdfs/lab-manual-computer-organization-and-assembly-language.pdf",
+    "hue": 175
   }
 ]
