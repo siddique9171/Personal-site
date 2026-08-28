@@ -46,5 +46,11 @@
     "cover": "covers/information-and-communication-technology.png",
     "pdf": "pdfs/information-and-communication-technology.pdf",
     "hue": 73
+  },
+  {
+    "title": "Test",
+    "cover": "covers/test.png",
+    "pdf": "pdfs/test.pdf",
+    "hue": 101
   }
 ]
