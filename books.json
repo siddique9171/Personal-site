@@ -52,11 +52,5 @@
     "cover": "covers/computer-networks-lab-manual.png",
     "pdf": "pdfs/computer-networks-lab-manual.pdf",
     "hue": 317
-  },
-  {
-    "title": "Lab Manual Programming for Artificial Intelligence",
-    "cover": "covers/lab-manual-programming-for-artificial-intelligence.png",
-    "pdf": "pdfs/lab-manual-programming-for-artificial-intelligence.pdf",
-    "hue": 128
   }
 ]
