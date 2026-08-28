@@ -46,5 +46,11 @@
     "cover": "covers/information-and-communication-technology.png",
     "pdf": "pdfs/information-and-communication-technology.pdf",
     "hue": 73
+  },
+  {
+    "title": "Computer Networks Lab Manual",
+    "cover": "covers/computer-networks-lab-manual.png",
+    "pdf": "pdfs/computer-networks-lab-manual.pdf",
+    "hue": 317
   }
 ]
